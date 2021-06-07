@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 let logger = require('morgan');
 
 
+
 const cors= require('cors');
 //imports routes
 let indexRouter = require('./routes/index');
@@ -62,4 +63,28 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+//ejecucion del servidor
+app.set('port',process.env.PORT|| 3000)
+
+const server = app.listen(app.get('port'),()=>{
+  console.log('server on port ' +  app.get('port'))
+}) 
+
+
+//sockets
+let io = require('socket.io')(server,{
+  cors:{
+    origin: '*',
+  }
+});
+
+io.on('connection', (socket)=>{
+  console.log('new Conecction ' + socket.id );
+
+  socket.on('new-message', (data)=>{
+    console.log(data);
+    io.sockets.emit('new-message',data)
+  })
+})
+
+//module.exports = app;

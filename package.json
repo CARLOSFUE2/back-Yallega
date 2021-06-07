@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "develop": "nodemon --exec node ./bin/www",
-    "start": "node ./bin/www"
+    "develop": "nodemon --exec node app.js",
+    "start": "node app.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",

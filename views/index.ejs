@@ -7,5 +7,15 @@
   <body>
     <h1><%= title %></h1>
     <p>Bienvenido a <%= title %> tu delivery seguro</p>
+    <p>probando los sockets</p>
   </body>
+  <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+  <script>
+        let socket = io.connect("/")
+    console.log(socket.on('conection'));
+    socket.on('conection', () =>{
+        console.log('conection');
+    })
+  </script>
+
 </html>

@@ -1,0 +1,2 @@
+/*io()*/
+alert('funciona')
