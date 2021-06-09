@@ -2,6 +2,7 @@ let express = require('express');
 let router = express.Router();
 const Request = require('../models/request');
 const User = require('../models/users');
+const Billing = require('../models/billing');
 const {distance} = require('../controllers/distanceMatrix');
 const {price} = require('../controllers/calculatePrice');
 const { request } = require('express');

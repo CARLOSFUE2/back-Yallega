@@ -13,7 +13,8 @@ let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
 let contactsRouter = require('./routes/contacts');
 let clientsRouter = require('./routes/clients');
-let requestRouter = require('./routes/request')
+let requestRouter = require('./routes/request');
+let billingRouter = require('./routes/billing');
 
 let app = express();
 app.use(cors());
@@ -46,6 +47,7 @@ app.use('/users', usersRouter);
 app.use('/contacts', contactsRouter);
 app.use('/clients', clientsRouter);
 app.use('/request',requestRouter);
+app.use('/billing', billingRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
