@@ -9,7 +9,6 @@ router.get('/', async (req,res)=>{
 
 router.get('/:clientId', async( req , res)=>{
     const clientId = req.params.clientId;
-    console.log(clientId);
     const billingList = await Billing.find({clientId});
     res.send(billingList);
 })
@@ -19,10 +18,17 @@ router.post('/', async(req, res)=>{
     const billingCreate = Billing.create(billing)
     res.send(billingCreate);
 })
+
+router.delete('/all', async(req,res)=>{
+    const response = await Billing.deleteMany();
+    res.send(response)
+})
+
 router.delete('/:id', async(req,res)=>{
     const _id = req.params.id;
     const response = await Billing.deleteOne({_id});
     res.send(response)
 })
+
 
 module.exports = router;

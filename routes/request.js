@@ -74,7 +74,32 @@ router.post('/', async (req,res) =>{
         ...request
     }
     const create = await Request.create(request);
-    res.send(create)
+    const clientId = request.clientId;
+    const billingList = await Billing.find({clientId});
+    if( billingList.length == 0){
+        const newBilling = {
+            client: request.client,
+            clientId:request.clientId,
+            services: [{
+                product:request.product,
+                value:request.value
+            }],
+            total:request.value,
+            dateExp:new Date(),
+            active:true,
+            number:1
+        }
+        const billingCreate = await Billing.create(newBilling)
+    }else{
+        const billingActive = billingList.filter( billing => billing.active == true )[0]
+        billingActive.services.push({
+            product:request.product,
+            value:request.value
+        })
+        billingActive.total = billingActive.total + request.value;
+        const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
+    }
+    res.send(request)
 })
 
 router.put('/select/:id', async (req, res)=>{
@@ -83,6 +108,11 @@ router.put('/select/:id', async (req, res)=>{
     console.log(status)
     const request = await Request.updateOne({_id:id},{$set:{status: STATUS[status]}});
     res.json(request)
+})
+
+router.delete('/all', async(req,res)=>{
+    const response = await Request.deleteMany();
+    res.send(response)
 })
 
 router.delete('/delete/:id', async (req,res)=>{

@@ -7,16 +7,10 @@ router.get('/', async (req, res, next) => {
   res.send(users);
 });
 router.get('/clients/:id', async (req, res, next) => {
+  console.log('pasa')
   const id = req.params.id;
-  listReturn = [];
-  const users = await User.find();
-  users.forEach(user => {
-    let index = user.clientsId.indexOf(id);
-      if(index>-1){
-        listReturn.push(user);
-      }
-  });
-  res.send(listReturn);
+  const users = await User.find({clientId: id});
+  res.send(users);
 });
 
 router.get('/:rut', async (req, res) => {
@@ -26,22 +20,26 @@ router.get('/:rut', async (req, res) => {
 });
 
 router.post('/', async (req,res) => {
-  console.log(req.body)
   let user = req.body;
-  const cliendtId = req.body.id;
-  const usuario= await User.findOne({'rut':user.rut});
-  if(usuario){
-    usuario.clientsId.push(cliendtId);
-    const userRegister = await User.updateOne({'rut':user.rut}, usuario);
-    res.json(usuario);
+  console.log(user);
+  const listUserForClient = await User.find({clientId: user.clientId});
+  if(listUserForClient.length >0){
+    let index = listUserForClient.indexOf(user.rut);
+    if(index == -1){
+      const create = await User.create(user);
+      res.send(create); 
+    }else{
+      res.send({message:'este usuario ya fue creado'}) 
+    }
   }else{
-    user = {
-      clientsId: [cliendtId],
-      ...user
-    };
-    const create = await User.create(user); 
-    res.json(create); 
+    const create = await User.create(user);
+    res.send(create); 
   }
+})
+
+router.delete('/all', async(req,res)=>{
+  const response = await User.deleteMany();
+  res.send(response)
 })
 
 module.exports = router;

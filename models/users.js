@@ -5,6 +5,6 @@ const userSchema = new mongoose.Schema({
 	rut: {type:String, unique:true},
 	address: String,
 	numberPhone: String,
-	clientsId: Array
+	clientId: String
 })
 module.exports = mongoose.model('User', userSchema);

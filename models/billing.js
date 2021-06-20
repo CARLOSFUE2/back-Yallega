@@ -4,8 +4,9 @@ const billingSchema = new mongoose.Schema({
 	client: String,
     clientId:String,
 	services: Array,
-    total:String,
+    total:Number,
     dateExp:String,
-    active:Boolean
+    active:Boolean,
+    number:Number
 })
 module.exports = mongoose.model('Billing', billingSchema);

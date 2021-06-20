@@ -11,6 +11,7 @@ const requestSchema = new mongoose.Schema({
 	value: Number,
 	status: String,
 	date: String,
-	time: String
+	time: String,
+	factureId:String
 })
 module.exports = mongoose.model('Request', requestSchema);
