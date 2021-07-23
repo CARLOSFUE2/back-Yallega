@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const deliverySchema = new mongoose.Schema({
+const deliverSchema = new mongoose.Schema({
 	name: String,
     numberPhone: String,
     email: {type:String,
@@ -8,6 +8,7 @@ const deliverySchema = new mongoose.Schema({
     password: String,
     address:String,
     identify: String,
-    vehicle: String
+    vehicle: String,
+    authorized: Boolean
 })
-module.exports = mongoose.model('Delivery', deliverySchema);
+module.exports = mongoose.model('Deliver', deliverSchema);

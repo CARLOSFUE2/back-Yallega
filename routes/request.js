@@ -42,6 +42,12 @@ router.get('/client/:id', async (req,res) => {
     res.json(response);
 });
 
+router.get('/deliver/:id', async (req,res)=>{
+    const id = req.params.id;
+    const requests = await Request.find({deliveryId: id});
+    res.send(requests);
+})
+
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
     const request = await Request.findById({_id:id});
@@ -87,7 +93,8 @@ router.post('/', async (req,res) =>{
             total:request.value,
             dateExp:new Date(),
             active:true,
-            number:1
+            number:1,
+            factureDeliver: false
         }
         const billingCreate = await Billing.create(newBilling)
     }else{
@@ -104,9 +111,38 @@ router.post('/', async (req,res) =>{
 
 router.put('/select/:id', async (req, res)=>{
     const id = req.params.id;
-    const status = req.body.status;
-    console.log(status)
-    const request = await Request.updateOne({_id:id},{$set:{status: STATUS[status]}});
+    const status = req.body.status.status;
+    const deliver = req.body.status.deliver;
+    const updateRequest = await Request.updateOne({_id:id},{$set:{status: STATUS[status],deliveryId:deliver._id}});
+    const request = await Request.findById({_id:id});
+    if( status == 3){
+        const billingList = await Billing.find({clientId:deliver._id});
+        if( billingList.length == 0){
+            const newBilling = {
+                client: deliver.name,
+                clientId:deliver._id,
+                services: [{
+                    product:request.product,
+                    value:request.value
+                }],
+                total:request.value,
+                dateExp:new Date(),
+                active:true,
+                number:1,
+                factureDeliver: true
+            }
+            const billingCreate = await Billing.create(newBilling)
+        }else{
+            const billingActive = billingList.filter( billing => billing.active == true )[0]
+            billingActive.services.push({
+                product:request.product,
+                value:request.value
+            })
+            billingActive.total = billingActive.total + request.value;
+            const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
+        }
+    }
+    
     res.json(request)
 })
 

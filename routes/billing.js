@@ -30,5 +30,11 @@ router.delete('/:id', async(req,res)=>{
     res.send(response)
 })
 
+router.put('/:id', async (req, res)=>{
+    const id = req.params.id;
+    //const update = await Billing.updateOne({_id:id},{$set:{factureDeliver: status}})
+    res.send(id)
+})
+
 
 module.exports = router;
