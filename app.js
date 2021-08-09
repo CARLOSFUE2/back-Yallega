@@ -9,15 +9,17 @@ let logger = require('morgan');
 
 const cors= require('cors');
 //imports routes
-let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
-let contactsRouter = require('./routes/contacts');
-let clientsRouter = require('./routes/clients');
-let requestRouter = require('./routes/request');
-let billingRouter = require('./routes/billing');
-let deliverRouter = require('./routes/deliver');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const contactsRouter = require('./routes/contacts');
+const clientsRouter = require('./routes/clients');
+const requestRouter = require('./routes/request');
+const billingRouter = require('./routes/billing');
+const deliverRouter = require('./routes/deliver');
+const paymentRouter = require('./routes/payment');
+const generalRouter = require('./routes/general');
 
-let app = express();
+const app = express();
 app.use(cors());
 
 //conection mongodb
@@ -50,6 +52,8 @@ app.use('/clients', clientsRouter);
 app.use('/request',requestRouter);
 app.use('/billing', billingRouter);
 app.use('/deliver', deliverRouter);
+app.use('/payment', paymentRouter );
+app.use('/general', generalRouter );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -98,13 +98,31 @@ router.post('/', async (req,res) =>{
         }
         const billingCreate = await Billing.create(newBilling)
     }else{
-        const billingActive = billingList.filter( billing => billing.active == true )[0]
-        billingActive.services.push({
-            product:request.product,
-            value:request.value
-        })
-        billingActive.total = billingActive.total + request.value;
-        const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
+        let listBillings = billingList.filter( billing => billing.active == true );
+        if(listBillings.length > 0){
+            const billingActive = listBillings[0];
+            billingActive.services.push({
+                product:request.product,
+                value:request.value
+            })
+            billingActive.total = billingActive.total + request.value;
+            const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
+        }else{
+            const newBilling = {
+                client: request.client,
+                clientId:request.clientId,
+                services: [{
+                    product:request.product,
+                    value:request.value
+                }],
+                total:request.value,
+                dateExp:new Date(),
+                active:true,
+                number:billingList[billingList.length - 1].number + 1,
+                factureDeliver: false
+            }
+            const billingCreate = await Billing.create(newBilling)
+        }
     }
     res.send(request)
 })

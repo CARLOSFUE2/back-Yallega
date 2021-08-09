@@ -8,6 +8,7 @@ const billingSchema = new mongoose.Schema({
     dateExp:String,
     active:Boolean,
     number:Number,
-    factureDeliver:Boolean
+    factureDeliver:Boolean,
+    payment: Array
 })
 module.exports = mongoose.model('Billing', billingSchema);
