@@ -124,7 +124,7 @@ router.post('/', async (req,res) =>{
             const billingCreate = await Billing.create(newBilling)
         }
     }
-    res.send(request)
+    res.send(create)
 })
 
 router.put('/select/:id', async (req, res)=>{

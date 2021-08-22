@@ -90,9 +90,13 @@ io.on('connection', (socket)=>{
   console.log('new Conecction ' + socket.id );
 
   socket.on('new-message', (data)=>{
-    console.log(data);
     io.sockets.emit('new-message',data)
+  })
+  socket.on('new-request', (request)=>{
+    io.sockets.emit('new-request',request)
+  })
+  socket.on('changeStatusRequest', (request)=>{
+    io.sockets.emit('changeStatusRequest',request)
   })
 })
 
-//module.exports = app;
