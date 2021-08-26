@@ -11,13 +11,13 @@ const cors= require('cors');
 //imports routes
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const contactsRouter = require('./routes/contacts');
 const clientsRouter = require('./routes/clients');
 const requestRouter = require('./routes/request');
 const billingRouter = require('./routes/billing');
 const deliverRouter = require('./routes/deliver');
 const paymentRouter = require('./routes/payment');
 const generalRouter = require('./routes/general');
+const contactRouter = require('./routes/contact');
 
 const app = express();
 app.use(cors());
@@ -47,13 +47,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 //routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/contacts', contactsRouter);
 app.use('/clients', clientsRouter);
 app.use('/request',requestRouter);
 app.use('/billing', billingRouter);
 app.use('/deliver', deliverRouter);
 app.use('/payment', paymentRouter );
 app.use('/general', generalRouter );
+app.use('/contact', contactRouter );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -97,6 +97,9 @@ io.on('connection', (socket)=>{
   })
   socket.on('changeStatusRequest', (request)=>{
     io.sockets.emit('changeStatusRequest',request)
+  })
+  socket.on('new-contact', (contact)=>{
+    io.sockets.emit('new-contact',contact)
   })
 })
 
