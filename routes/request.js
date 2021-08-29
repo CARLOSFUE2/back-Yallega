@@ -3,7 +3,7 @@ let router = express.Router();
 const Request = require('../models/request');
 const User = require('../models/users');
 const Billing = require('../models/billing');
-const {distance} = require('../controllers/distanceMatrix');
+const {requestMatrixDistane} = require('../controllers/distanceMatrix');
 const {price} = require('../controllers/calculatePrice');
 const { request } = require('express');
 const { find } = require('../models/request');
@@ -69,7 +69,17 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req,res) =>{
     let request = req.body;
-    let matrix = distance(20,30);
+    let origin = {
+        lat: request.origin.lat,
+        lng: request.origin.lng
+    }
+    let destiny = {
+        lat: request.destiny.lat,
+        lng: request.destiny.lng
+    }
+    request.origin = request.origin.name; 
+    request.destiny = request.destiny.name; 
+    let matrix = await requestMatrixDistane(origin,destiny);
     let value = price(matrix, 'estandar');
     let date = new Date()
     request = {

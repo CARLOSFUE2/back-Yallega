@@ -18,6 +18,7 @@ const deliverRouter = require('./routes/deliver');
 const paymentRouter = require('./routes/payment');
 const generalRouter = require('./routes/general');
 const contactRouter = require('./routes/contact');
+const messageRouter = require('./routes/message');
 
 const app = express();
 app.use(cors());
@@ -54,6 +55,7 @@ app.use('/deliver', deliverRouter);
 app.use('/payment', paymentRouter );
 app.use('/general', generalRouter );
 app.use('/contact', contactRouter );
+app.use('/messages', messageRouter );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -100,6 +102,9 @@ io.on('connection', (socket)=>{
   })
   socket.on('new-contact', (contact)=>{
     io.sockets.emit('new-contact',contact)
+  })
+  socket.on('new-message-chat', (message)=>{
+    io.sockets.emit('new-message-chat',message)
   })
 })
 
