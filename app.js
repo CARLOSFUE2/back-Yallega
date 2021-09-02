@@ -4,6 +4,7 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 let logger = require('morgan');
+const {notification} = require('./controllers/notifications');
 
 
 
@@ -108,3 +109,5 @@ io.on('connection', (socket)=>{
   })
 })
 
+//notifications
+//notification();
