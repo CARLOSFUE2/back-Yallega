@@ -20,6 +20,7 @@ const paymentRouter = require('./routes/payment');
 const generalRouter = require('./routes/general');
 const contactRouter = require('./routes/contact');
 const messageRouter = require('./routes/message');
+const tokenRouter = require('./routes/tokens');
 
 const app = express();
 app.use(cors());
@@ -57,6 +58,7 @@ app.use('/payment', paymentRouter );
 app.use('/general', generalRouter );
 app.use('/contact', contactRouter );
 app.use('/messages', messageRouter );
+app.use('/tokens', tokenRouter );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
