@@ -110,6 +110,3 @@ io.on('connection', (socket)=>{
     io.sockets.emit('new-message-chat',message)
   })
 })
-
-//notifications
-//notification();

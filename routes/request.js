@@ -5,8 +5,8 @@ const User = require('../models/users');
 const Billing = require('../models/billing');
 const {requestMatrixDistane} = require('../controllers/distanceMatrix');
 const {price} = require('../controllers/calculatePrice');
-const { request } = require('express');
-const { find } = require('../models/request');
+const Token = require('../models/tokens');
+const {sendNotification} = require('../controllers/notifications');
 const STATUS =[
     'En Espera', 'Asignado', 'En Proceso', 'Entregado', 'Rechazado', 'Devuelto'
   ];
@@ -92,6 +92,12 @@ router.post('/', async (req,res) =>{
     const create = await Request.create(request);
     const clientId = request.clientId;
     const billingList = await Billing.find({clientId});
+    let tokens = await Token.find();
+    let listTokens = organiceTokens(tokens);
+    console.log(listTokens);
+    let notificacion = await sendNotification(listTokens);
+ 
+
     if( billingList.length == 0){
         const newBilling = {
             client: request.client,
@@ -184,5 +190,14 @@ router.delete('/delete/:id', async (req,res)=>{
     const response = await Request.findByIdAndDelete({_id: id});
     res.json(response)
 })
+
+
+function organiceTokens(tokens){
+    let list = [];
+    tokens.forEach(token=>{
+        list.push(token.token);
+    })
+    return list;
+}
 
 module.exports = router;
