@@ -8,13 +8,13 @@ const {price} = require('../controllers/calculatePrice');
 const Token = require('../models/tokens');
 const {sendNotification} = require('../controllers/notifications');
 const STATUS =[
-    'En Espera', 'Asignado', 'En Proceso', 'Entregado', 'Rechazado', 'Devuelto'
-  ];
+    'En Espera', 'Asignado', 'En Proceso', 'Entregado', 'Rechazado', 'Devuelto', 'Retirado'];
 
 router.get('/', async (req,res) => {
     const request = await Request.find();
     res.json(request);
 });
+
 router.get('/client/:id', async (req,res) => {
     const id = req.params.id;
     let response =[]
@@ -61,13 +61,18 @@ router.get('/:id', async (req, res) => {
         status: request.status,
         price: request.value,
         destiny: request.destiny,
-        origin: request.origin
+        origin: request.origin,
+        destinyUrl: request.destinyUrl,
+        originUrl: request.originUrl,
+        reference: request.reference,
+        productValue: request.productValue,
+        destinationCharge: request.destinationCharge,
+        deliveryId: request.deliveryId
         }
     res.send(formatResponse)
 })
 
-
-router.post('/', async (req,res) =>{
+router.post('/distance', async (req,res)=>{
     let request = req.body;
     let origin = {
         lat: request.origin.lat,
@@ -77,14 +82,28 @@ router.post('/', async (req,res) =>{
         lat: request.destiny.lat,
         lng: request.destiny.lng
     }
+    request.originUrl = request.origin.url; 
+    request.destinyUrl = request.destiny.url; 
     request.origin = request.origin.name; 
     request.destiny = request.destiny.name; 
     let matrix = await requestMatrixDistane(origin,destiny);
-    let value = price(matrix, 'estandar');
+    let value = await price(matrix, 'estandar');
+    const response = {
+        distance: matrix,
+        value
+    }
+    res.send(response);
+})
+
+router.post('/', async (req,res) =>{
+    let request = req.body;
+    console.log(request);
+    request.originUrl = request.origin.url; 
+    request.destinyUrl = request.destiny.url; 
+    request.origin = request.origin.name; 
+    request.destiny = request.destiny.name; 
     let date = new Date()
     request = {
-        distance: matrix,
-        value,
         date,
         status: STATUS[0],
         ...request
@@ -94,10 +113,8 @@ router.post('/', async (req,res) =>{
     const billingList = await Billing.find({clientId});
     let tokens = await Token.find();
     let listTokens = organiceTokens(tokens);
-    console.log(listTokens);
     let notificacion = await sendNotification(listTokens);
  
-
     if( billingList.length == 0){
         const newBilling = {
             client: request.client,

@@ -11,9 +11,14 @@ router.get('/', async (req, res) => {
 
 router.post('/', async(req, res)=>{
     const deliver = req.body;
-    console.log(deliver)
     const deliverCreate = await Deliver.create(deliver);
     res.send(deliverCreate);
+})
+
+router.get('/:id', async(req,res)=>{
+    let id = req.params.id;
+    let deliver = await Deliver.findById({_id:id})
+    res.send(deliver)
 })
 
 router.post('/login', async(req,res)=>{
@@ -31,6 +36,11 @@ router.post('/login', async(req,res)=>{
     }else if(deliver[0].password !== deliverLogin.password){
         response={
             mensaje: 'contraseña incorrecta',
+            auth:false
+        }
+    }else if(deliver[0].authorized == false){
+        response={
+            mensaje: 'Aun no ha sido aprobado su ingreso en ya llega',
             auth:false
         }
     }else{

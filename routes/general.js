@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const General = require('../models/general')
+const General = require('../models/general');
+const Rate = require('../models/rates')
 
 router.get('/', async(req,res)=>{
     let general = await General.find();
@@ -47,6 +48,37 @@ router.get('/', async(req,res)=>{
         general = await General.create(data);
     }
     res.send(general);
+})
+
+router.get('/rate', async(req,res)=>{
+    let rates = await Rate.find()
+    rates = rates[0]
+    res.send(rates)
+})
+
+router.put('/rate/min', async(req,res)=>{
+    let rates = await Rate.find()
+    rates = rates[0]
+    const min = req.body.min;
+    let update = await Rate.updateOne({_id:rates._id},{$set:{min:min}});
+    res.send(min)
+})
+
+router.put('/rate/forKm', async(req,res)=>{
+    let rates = await Rate.find()
+    rates = rates[0]
+    const forKm = req.body.rateForKm;
+    let update = await Rate.updateOne({_id:rates._id},{$set:{forKm:forKm}});
+    res.send(forKm)
+})
+
+router.get('/createRate', async(req,res)=>{
+    const rates = {
+        min:1,
+        forKm:1
+    }
+    const create = await Rate.create(rates)
+    res.send(create); 
 })
 
 router.get('/paymentmethods', async(req,res)=>{
