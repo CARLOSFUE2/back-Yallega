@@ -11,6 +11,7 @@ const requestSchema = new mongoose.Schema({
 	destinyUrl: String,
 	distance: Number,
 	value: Number,
+	paymentForRquest: Number,
 	status: String,
 	date: String,
 	time: String,

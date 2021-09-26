@@ -90,14 +90,14 @@ router.post('/distance', async (req,res)=>{
     let value = await price(matrix, 'estandar');
     const response = {
         distance: matrix,
-        value
+        value: value.cost,
+        paymentForRquest: value.deliverCost
     }
     res.send(response);
 })
 
 router.post('/', async (req,res) =>{
     let request = req.body;
-    console.log(request);
     request.originUrl = request.origin.url; 
     request.destinyUrl = request.destiny.url; 
     request.origin = request.origin.name; 
@@ -174,9 +174,9 @@ router.put('/select/:id', async (req, res)=>{
                 clientId:deliver._id,
                 services: [{
                     product:request.product,
-                    value:request.value
+                    value:request.paymentForRquest
                 }],
-                total:request.value,
+                total:request.paymentForRquest,
                 dateExp:new Date(),
                 active:true,
                 number:1,
@@ -187,9 +187,9 @@ router.put('/select/:id', async (req, res)=>{
             const billingActive = billingList.filter( billing => billing.active == true )[0]
             billingActive.services.push({
                 product:request.product,
-                value:request.value
+                value:request.paymentForRquest
             })
-            billingActive.total = billingActive.total + request.value;
+            billingActive.total = billingActive.total + request.paymentForRquest;
             const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
         }
     }
