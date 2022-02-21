@@ -64,8 +64,9 @@ router.get('/:id', async (req, res) => {
         origin: request.origin,
         destinyUrl: request.destinyUrl,
         originUrl: request.originUrl,
+        distance: request.distance,
         reference: request.reference,
-        productValue: request.productValue,
+        productValue: request.paymentForRquest,
         destinationCharge: request.destinationCharge,
         deliveryId: request.deliveryId
         }
@@ -108,6 +109,7 @@ router.post('/', async (req,res) =>{
         status: STATUS[0],
         ...request
     }
+    
     const create = await Request.create(request);
     const clientId = request.clientId;
     const billingList = await Billing.find({clientId});
@@ -166,25 +168,13 @@ router.put('/select/:id', async (req, res)=>{
     const deliver = req.body.status.deliver;
     const updateRequest = await Request.updateOne({_id:id},{$set:{status: STATUS[status],deliveryId:deliver._id}});
     const request = await Request.findById({_id:id});
+
     if( status == 3){
         const billingList = await Billing.find({clientId:deliver._id});
-        if( billingList.length == 0){
-            const newBilling = {
-                client: deliver.name,
-                clientId:deliver._id,
-                services: [{
-                    product:request.product,
-                    value:request.paymentForRquest
-                }],
-                total:request.paymentForRquest,
-                dateExp:new Date(),
-                active:true,
-                number:1,
-                factureDeliver: true
-            }
-            const billingCreate = await Billing.create(newBilling)
+        const billingActive = billingList.filter( billing => billing.active == true )[0]
+        if( billingList.length == 0  || !billingActive ){
+            createNewBilling(deliver,request);
         }else{
-            const billingActive = billingList.filter( billing => billing.active == true )[0]
             billingActive.services.push({
                 product:request.product,
                 value:request.paymentForRquest
@@ -193,7 +183,7 @@ router.put('/select/:id', async (req, res)=>{
             const billlingUpdate = await Billing.updateOne({_id : billingActive._id}, billingActive) 
         }
     }
-    
+
     res.json(request)
 })
 
@@ -215,6 +205,25 @@ function organiceTokens(tokens){
         list.push(token.token);
     })
     return list;
+}
+
+async function createNewBilling(deliver,request){
+
+    const newBilling = {
+        client: deliver.name,
+        clientId:deliver._id,
+        services: [{
+            product:request.product,
+            value:request.paymentForRquest
+        }],
+        total:request.paymentForRquest,
+        dateExp:new Date(),
+        active:true,
+        number:1,
+        factureDeliver: true
+    }
+    const billingCreate = await Billing.create(newBilling)
+
 }
 
 module.exports = router;
