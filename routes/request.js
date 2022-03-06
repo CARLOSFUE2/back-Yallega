@@ -7,6 +7,7 @@ const {requestMatrixDistane} = require('../controllers/distanceMatrix');
 const {price} = require('../controllers/calculatePrice');
 const Token = require('../models/tokens');
 const {sendNotification} = require('../controllers/notifications');
+const Client = require('../models/client');
 const STATUS =[
     'En Espera', 'Asignado', 'En Proceso', 'Entregado', 'Rechazado', 'Devuelto', 'Retirado'];
 
@@ -87,8 +88,13 @@ router.post('/distance', async (req,res)=>{
     request.destinyUrl = request.destiny.url; 
     request.origin = request.origin.name; 
     request.destiny = request.destiny.name; 
+
+    //aqui
+    let client = await Client.findById({_id:request.clientId});
+    console.log(client)
     let matrix = await requestMatrixDistane(origin,destiny);
-    let value = await price(matrix, 'estandar');
+    let value = await price(matrix, client.type);
+    //aqui
     const response = {
         distance: matrix,
         value: value.cost,

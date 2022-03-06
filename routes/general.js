@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const General = require('../models/general');
-const Rate = require('../models/rates')
+const Rate = require('../models/rates');
+
+const typeCients =[
+    'Estandar', 'Especial', 'Destacada'];
 
 router.get('/', async(req,res)=>{
     let general = await General.find();
@@ -51,36 +54,40 @@ router.get('/', async(req,res)=>{
 })
 
 router.get('/rate', async(req,res)=>{
-    let rates = await Rate.find()
-    rates = rates[0]
-    res.send(rates)
+    let rates = await Rate.find();
+    let ratesForSend =[];
+    if(rates.length == 0){
+        await createRate();
+        rates = await Rate.find();
+    }
+    rates = rates;
+    rates.forEach( rate =>{
+        let rateForSend = {
+            _id: rate._id,
+            forKm: rate.forKm, forKmdistribution: rate.forKmdistribution, 
+            min: rate.min,  minDistribution: rate.minDistribution, type: rate.type};
+        ratesForSend.push(rateForSend)
+    })
+    res.send(ratesForSend)
 })
 
-router.put('/rate/min', async(req,res)=>{
-    let rates = await Rate.find()
-    rates = rates[0]
-    const min = req.body; 
-    let update = await Rate.updateOne({_id:rates._id},{$set:min});
-    res.send(min)
+router.put('/rate', async(req,res)=>{
+    const body = req.body; 
+    let update = await Rate.updateOne({_id:body._id},{$set:body});
+    res.send(update)
 })
 
-router.put('/rate/forKm', async(req,res)=>{
-    let rates = await Rate.find()
-    rates = rates[0]
-    const forKm = req.body;
-    let update = await Rate.updateOne({_id:rates._id},{$set:forKm});
-    res.send(forKm)
-})
 
 router.get('/createRate', async(req,res)=>{
-    const rates = {
-        min:1,
-        minDistribution:10,
-        forKm:1,
-        forKmdistribution:10
+
+    let prevRates = await Rate.find()
+    if(prevRates.length>0){
+        res.send('ya hay tarifas creadas');
+    }else{
+        await createRate();
+        res.send('tarifas creadas'); 
     }
-    const create = await Rate.create(rates)
-    res.send(create); 
+    
 })
 
 router.get('/deleteRates', async (req,res)=>{
@@ -108,5 +115,19 @@ router.delete('/', async(req,res)=>{
     let deleted =  await General.deleteMany();
     res.send(deleted);
 })
+
+async function createRate(){
+    let rates = {
+        min:1,
+        minDistribution:10,
+        forKm:1,
+        forKmdistribution:10
+    };
+    for (let index = 0; index < typeCients.length; index++) {
+        let element = {...rates, type: typeCients[index] }
+        let create = await Rate.create(element)
+        
+      }
+}
 
 module.exports = router;

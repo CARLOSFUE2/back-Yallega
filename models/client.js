@@ -7,6 +7,7 @@ const clientSchema = new mongoose.Schema({
         unique:true},
     password: String,
     address:String,
-    identify: String  
+    identify: String,
+    type:String
 })
 module.exports = mongoose.model('Client', clientSchema);
