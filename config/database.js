@@ -8,7 +8,7 @@ const {
   } = process.env;
 
   //local conection
-  const URI = 'mongodb://127.0.0.1:27017/ejemplo1'
+  const URI = 'mongodb://127.0.0.1:27017/yallega'
   mongoose.connect(URI,{
     useCreateIndex:true,
     useFindAndModify:true,

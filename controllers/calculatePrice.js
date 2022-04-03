@@ -18,14 +18,22 @@ async function price(distance, typeRateForClient) {
       rate = rt
     } //ojo aqui
   })
-
+  let gainMinimal;
+  let gainFormKm;
+ 
   if (distance <= 3) {
-    cost = rate.min
-    deliverCost = cost - cost * (rate.minDistribution / 100)
+    cost = rate.min;
+    gainMinimal = cost * (rate.minDistribution / 100);
+    deliverCost = cost - gainMinimal;
   } else {
-    cost = rate.min + (distance - 3) * rate.forKm
-    deliverCost = cost - cost * (rate.forKmdistribution / 100)
+    let extra = (distance - 3) * rate.forKm;
+    cost = rate.min + extra;
+    gainMinimal = rate.min * (rate.minDistribution / 100);
+    gainFormKm = extra * (rate.forKmdistribution / 100);
+    deliverCost = (rate.min - gainMinimal) + (extra - gainFormKm);
+
   }
+  console.log(cost,deliverCost)
   return { cost, deliverCost }
 }
 

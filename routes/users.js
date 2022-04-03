@@ -21,13 +21,19 @@ router.get('/:rut', async (req, res) => {
 
 router.post('/', async (req,res) => {
   let user = req.body;
-  console.log(user);
+  console.log(user)
   const listUserForClient = await User.find({clientId: user.clientId});
   if(listUserForClient.length >0){
-    let index = listUserForClient.indexOf(user.rut);
-    if(index == -1){
+    let index = listUserForClient.indexOf(user.numberPhone);
+     console.log(index)
+    if (index == -1) {
+      try {
       const create = await User.create(user);
       res.send(create); 
+      } catch (e) {
+        console.log(e);
+        res.send({message:'ha ocurrido un error'}) 
+      }
     }else{
       res.send({message:'este usuario ya fue creado'}) 
     }
@@ -37,7 +43,7 @@ router.post('/', async (req,res) => {
   }
 })
 
-router.delete('/all', async(req,res)=>{
+router.get('delete', async(req,res)=>{
   const response = await User.deleteMany();
   res.send(response)
 })
