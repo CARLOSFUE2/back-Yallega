@@ -8,6 +8,7 @@ const { price } = require("../controllers/calculatePrice")
 const Token = require("../models/tokens")
 const { sendNotification } = require("../controllers/notifications")
 const Client = require("../models/client")
+const { ordenateResponse } = require("../services/ordenateAndPaginateResponse")
 const STATUS = [
   "En Espera",
   "Asignado",
@@ -19,8 +20,16 @@ const STATUS = [
 ]
 
 router.get("/", async (req, res) => {
-  const request = await Request.find()
-  res.json(request)
+  const request = await Request.find();
+  let response = ordenateResponse(request);
+  res.json(response)
+})
+
+router.get("/available", async (req, res) => {
+  const request = await Request.find();
+  let response = request.filter(request => request.status == STATUS[0])
+  response = ordenateResponse(response);
+  res.json(response)
 })
 
 router.get("/client/:id", async (req, res) => {
@@ -47,13 +56,15 @@ router.get("/client/:id", async (req, res) => {
     }
     response.push(formatResponse)
   })
+  response = ordenateResponse(response);
   res.json(response)
 })
 
 router.get("/deliver/:id", async (req, res) => {
   const id = req.params.id
   const requests = await Request.find({ deliveryId: id })
-  res.send(requests)
+  let response = ordenateResponse(requests);
+  res.send(response)
 })
 
 router.get("/:id", async (req, res) => {

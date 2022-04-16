@@ -21,11 +21,9 @@ router.get('/:rut', async (req, res) => {
 
 router.post('/', async (req,res) => {
   let user = req.body;
-  console.log(user)
-  const listUserForClient = await User.find({clientId: user.clientId});
+  const listUserForClient = await User.find({ clientId: user.clientId });
   if(listUserForClient.length >0){
     let index = listUserForClient.indexOf(user.numberPhone);
-     console.log(index)
     if (index == -1) {
       try {
       const create = await User.create(user);
