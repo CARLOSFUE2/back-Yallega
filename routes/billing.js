@@ -30,7 +30,7 @@ router.get('/payments/:id', async( req, res)=>{
 
 router.get('/:clientId', async( req , res)=>{
     const clientId = req.params.clientId;
-    const billingList = await Billing.find({clientId});
+    const billingList = await Billing.find({ clientId });
     res.send(billingList);
 })
 

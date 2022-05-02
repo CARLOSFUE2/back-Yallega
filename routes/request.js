@@ -17,6 +17,7 @@ const STATUS = [
   "Rechazado",
   "Devuelto",
   "Retirado",
+  "Cancelado"
 ]
 
 router.get("/", async (req, res) => {
@@ -147,6 +148,7 @@ router.post("/", async (req, res) => {
       clientId: request.clientId,
       services: [
         {
+          id: request._id,
           product: request.product,
           value: request.value,
         },
@@ -161,8 +163,9 @@ router.post("/", async (req, res) => {
   } else {
     let listBillings = billingList.filter((billing) => billing.active == true)
     if (listBillings.length > 0) {
-      const billingActive = listBillings[0]
+      const billingActive = listBillings[0];
       billingActive.services.push({
+        id: create._id,
         product: request.product,
         value: request.value,
       })
@@ -177,6 +180,7 @@ router.post("/", async (req, res) => {
         clientId: request.clientId,
         services: [
           {
+            id: request._id,
             product: request.product,
             value: request.value,
           },
@@ -191,6 +195,32 @@ router.post("/", async (req, res) => {
     }
   }
   res.send(create)
+})
+
+router.put("/cancelDeliver", async (req, res) => {
+  const request = req.body.request;
+  const deliver = req.body.deliver;
+  request.productValue = request.productValue * -0.3;
+  request.product = request.product + ' - multa por cancelacion';
+
+  const billingList = await Billing.find({ clientId: deliver._id })
+  const billingActive = billingList.filter(
+    (billing) => billing.active == true
+  )[0]
+  if (billingList.length == 0 || !billingActive) {
+    createNewBilling(deliver, request)
+  } else {
+    billingActive.services.push({
+      id: request._id,
+      product: request.product,
+      value: request.productValue,
+    })
+    billingActive.total = billingActive.total + request.productValue
+    const billlingUpdate = await Billing.updateOne(
+      { _id: billingActive._id },
+      billingActive
+    )
+  }
 })
 
 router.put("/select/:id", async (req, res) => {
@@ -212,6 +242,7 @@ router.put("/select/:id", async (req, res) => {
       createNewBilling(deliver, request)
     } else {
       billingActive.services.push({
+        id: request._id,
         product: request.product,
         value: request.paymentForRquest,
       })
@@ -231,13 +262,46 @@ router.delete("/all", async (req, res) => {
   res.send(response)
 })
 
+router.delete("/cancel/:id/:clientId", async (req, res) => {
+  const id = req.params.id;
+  const clientId = req.params.clientId;
+  const cancelStatus = STATUS[7];
+  const request = await Request.findById({ _id: id });
+  const updateRequest = await Request.updateOne(
+    { _id: id },
+    { $set: { status: cancelStatus, value: 1000, reference: 'Este pedido fue cancelado el dia ' + new Date().toLocaleString() } }
+  )
+  const requestCancel = await Request.findById({ _id: id });
+  const billingList = await Billing.find({ clientId });
+  let billingActive;
+  billingList.forEach(billing => {
+    if (billing.active == true) {
+      billingActive = billing;
+    }
+  })
+  const servicesIntoBillingActive = billingActive.services;
+  let newTotal = 0;
+  servicesIntoBillingActive.forEach(service => {
+    if (service.id && service.id == id) {
+      service.product = service.product + '- multa por cancelar pedido'
+      service.value = 1000;
+    }
+    newTotal = newTotal + service.value;
+  })
+  const updateBilling = await Billing.updateOne(
+    { _id: billingActive._id },
+    { $set: { services: servicesIntoBillingActive, total: newTotal } }
+  )
+  res.json(requestCancel);
+})
+
 router.delete("/delete/:id", async (req, res) => {
   const id = req.params.id
   const response = await Request.findByIdAndDelete({ _id: id })
   res.json(response)
 })
 
-function organiceTokens(tokens) {
+function organiceTokens (tokens) {
   let list = []
   tokens.forEach((token) => {
     list.push(token.token)
@@ -245,12 +309,13 @@ function organiceTokens(tokens) {
   return list
 }
 
-async function createNewBilling(deliver, request) {
+async function createNewBilling (deliver, request) {
   const newBilling = {
     client: deliver.name,
     clientId: deliver._id,
     services: [
       {
+        id: request._id,
         product: request.product,
         value: request.paymentForRquest,
       },
