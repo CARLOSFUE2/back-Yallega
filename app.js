@@ -109,4 +109,7 @@ io.on('connection', (socket)=>{
   socket.on('new-message-chat', (message)=>{
     io.sockets.emit('new-message-chat',message)
   })
+  socket.on('update-request', (request) => {
+    io.sockets.emit('update-request', request)
+  })
 })

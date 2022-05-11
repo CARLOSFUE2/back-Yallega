@@ -17,19 +17,19 @@ const STATUS = [
   "Rechazado",
   "Devuelto",
   "Retirado",
-  "Cancelado"
+  "Cancelado",
 ]
 
 router.get("/", async (req, res) => {
-  const request = await Request.find();
-  let response = ordenateResponse(request);
+  const request = await Request.find()
+  let response = ordenateResponse(request)
   res.json(response)
 })
 
 router.get("/available", async (req, res) => {
-  const request = await Request.find();
-  let response = request.filter(request => request.status == STATUS[0])
-  response = ordenateResponse(response);
+  const request = await Request.find()
+  let response = request.filter((request) => request.status == STATUS[0])
+  response = ordenateResponse(response)
   res.json(response)
 })
 
@@ -57,14 +57,14 @@ router.get("/client/:id", async (req, res) => {
     }
     response.push(formatResponse)
   })
-  response = ordenateResponse(response);
+  response = ordenateResponse(response)
   res.json(response)
 })
 
 router.get("/deliver/:id", async (req, res) => {
   const id = req.params.id
   const requests = await Request.find({ deliveryId: id })
-  let response = ordenateResponse(requests);
+  let response = ordenateResponse(requests)
   res.send(response)
 })
 
@@ -163,7 +163,7 @@ router.post("/", async (req, res) => {
   } else {
     let listBillings = billingList.filter((billing) => billing.active == true)
     if (listBillings.length > 0) {
-      const billingActive = listBillings[0];
+      const billingActive = listBillings[0]
       billingActive.services.push({
         id: create._id,
         product: request.product,
@@ -198,10 +198,10 @@ router.post("/", async (req, res) => {
 })
 
 router.put("/cancelDeliver", async (req, res) => {
-  const request = req.body.request;
-  const deliver = req.body.deliver;
-  request.productValue = request.productValue * -0.3;
-  request.product = request.product + ' - multa por cancelacion';
+  const request = req.body.request
+  const deliver = req.body.deliver
+  request.productValue = request.productValue * -0.3
+  request.product = request.product + " - multa por cancelacion"
 
   const billingList = await Billing.find({ clientId: deliver._id })
   const billingActive = billingList.filter(
@@ -257,42 +257,92 @@ router.put("/select/:id", async (req, res) => {
   res.json(request)
 })
 
+router.put("/modify/:id", async (req, res) => {
+  const id = req.params.id
+  let request = req.body
+  request.originUrl = request.origin.url
+  request.destinyUrl = request.destiny.url
+  request.origin = request.origin.name
+  request.destiny = request.destiny.name
+  request = {
+    status: STATUS[0],
+    ...request,
+  }
+  const requestUpdate = await Request.updateOne(
+    { _id: id },
+    request
+  )
+
+  const clientId = request.clientId
+  const billingList = await Billing.find({ clientId })
+
+    let listBillings = billingList.filter((billing) => billing.active == true)
+    if (listBillings.length > 0) {
+      const billingActive = listBillings[0]
+      const service = billingActive.services.filter((service) => service.id == id)[0];
+      const indexOfServiceModify = billingActive.services.indexOf(service);
+      billingActive.services.splice(indexOfServiceModify, 1);
+
+      billingActive.services.push({
+        id,
+        product: request.product,
+        value: request.value,
+      })
+
+      billingActive.total = billingActive.total + request.value - service.value
+      const billlingUpdate = await Billing.updateOne(
+        { _id: billingActive._id },
+        billingActive
+      )
+    } 
+  
+  const requestBeforeUpdate = await Request.findById({ _id: id })
+  res.send(requestBeforeUpdate);
+})
+
 router.delete("/all", async (req, res) => {
   const response = await Request.deleteMany()
   res.send(response)
 })
 
 router.delete("/cancel/:id/:clientId", async (req, res) => {
-  const id = req.params.id;
-  const clientId = req.params.clientId;
-  const cancelStatus = STATUS[7];
-  const request = await Request.findById({ _id: id });
+  const id = req.params.id
+  const clientId = req.params.clientId
+  const cancelStatus = STATUS[7]
+  const request = await Request.findById({ _id: id })
   const updateRequest = await Request.updateOne(
     { _id: id },
-    { $set: { status: cancelStatus, value: 1000, reference: 'Este pedido fue cancelado el dia ' + new Date().toLocaleString() } }
+    {
+      $set: {
+        status: cancelStatus,
+        value: 1000,
+        reference:
+          "Este pedido fue cancelado el dia " + new Date().toLocaleString(),
+      },
+    }
   )
-  const requestCancel = await Request.findById({ _id: id });
-  const billingList = await Billing.find({ clientId });
-  let billingActive;
-  billingList.forEach(billing => {
+  const requestCancel = await Request.findById({ _id: id })
+  const billingList = await Billing.find({ clientId })
+  let billingActive
+  billingList.forEach((billing) => {
     if (billing.active == true) {
-      billingActive = billing;
+      billingActive = billing
     }
   })
-  const servicesIntoBillingActive = billingActive.services;
-  let newTotal = 0;
-  servicesIntoBillingActive.forEach(service => {
+  const servicesIntoBillingActive = billingActive.services
+  let newTotal = 0
+  servicesIntoBillingActive.forEach((service) => {
     if (service.id && service.id == id) {
-      service.product = service.product + '- multa por cancelar pedido'
-      service.value = 1000;
+      service.product = service.product + "- multa por cancelar pedido"
+      service.value = 1000
     }
-    newTotal = newTotal + service.value;
+    newTotal = newTotal + service.value
   })
   const updateBilling = await Billing.updateOne(
     { _id: billingActive._id },
     { $set: { services: servicesIntoBillingActive, total: newTotal } }
   )
-  res.json(requestCancel);
+  res.json(requestCancel)
 })
 
 router.delete("/delete/:id", async (req, res) => {
@@ -301,7 +351,7 @@ router.delete("/delete/:id", async (req, res) => {
   res.json(response)
 })
 
-function organiceTokens (tokens) {
+function organiceTokens(tokens) {
   let list = []
   tokens.forEach((token) => {
     list.push(token.token)
@@ -309,7 +359,7 @@ function organiceTokens (tokens) {
   return list
 }
 
-async function createNewBilling (deliver, request) {
+async function createNewBilling(deliver, request) {
   const newBilling = {
     client: deliver.name,
     clientId: deliver._id,
@@ -329,4 +379,4 @@ async function createNewBilling (deliver, request) {
   const billingCreate = await Billing.create(newBilling)
 }
 
-module.exports = router
+module.exports = router;
