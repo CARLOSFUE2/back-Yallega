@@ -11,13 +11,17 @@ router.get('/', async (req,res)=>{
 
 router.get('/delivers', async( req , res)=>{
     const clientId = req.params.clientId;
-    const billingList = await Billing.find({factureDeliver:true});
+    const billingList = await Billing.find({ factureDeliver: true });
+    billingList.reverse();
+    billingList.splice(100);
     res.send(billingList);
 })
 
 router.get('/clients', async( req , res)=>{
     const clientId = req.params.clientId;
-    const billingList = await Billing.find({factureDeliver:false});
+    const billingList = await Billing.find({ factureDeliver: false });
+    billingList.reverse();
+    billingList.splice(100);
     res.send(billingList);
 })
 

@@ -18,6 +18,7 @@ const requestSchema = new mongoose.Schema({
 	reference: String,
 	factureId:String,
 	productValue: Number,
+	deliveryDiscount: Number,
 	destinationCharge: Boolean
 })
 module.exports = mongoose.model('Request', requestSchema);

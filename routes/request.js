@@ -86,9 +86,10 @@ router.get("/:id", async (req, res) => {
     originUrl: request.originUrl,
     distance: request.distance,
     reference: request.reference,
-    productValue: request.paymentForRquest, //aqui me equivoque y hay que corregirlo mas adelante
-    value: request.productValue,
+    productValue: request.productValue, 
+    value: request.paymentForRquest,
     destinationCharge: request.destinationCharge,
+    deliveryDiscount: request.deliveryDiscount,
     deliveryId: request.deliveryId,
   }
   res.send(formatResponse)
