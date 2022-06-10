@@ -36,15 +36,10 @@ router.get("/available", async (req, res) => {
 router.get("/client/:id", async (req, res) => {
   const id = req.params.id
   let response = []
-  const request = await Request.find()
+  const requests = await Request.find({ clientId: id })
   const clients = await User.find()
-  let requestMatch = []
-  request.forEach((e) => {
-    if (e.clientId == id) {
-      requestMatch.push(e)
-    }
-  })
-  requestMatch.forEach((req) => {
+
+  requests.forEach((req) => {
     let coincidencias = clients.filter((client) => req.userId == client._id)
     let formatResponse = {
       _id: req._id,
@@ -57,7 +52,7 @@ router.get("/client/:id", async (req, res) => {
     }
     response.push(formatResponse)
   })
-  response = ordenateResponse(response)
+  response = response
   res.json(response)
 })
 
